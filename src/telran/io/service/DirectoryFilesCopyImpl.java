@@ -13,74 +13,49 @@ import java.time.temporal.ChronoUnit;
 import telran.view.InputOutput;
 
 public class DirectoryFilesCopyImpl implements DirectiryFilesCopy {
-	private static final int BOOFER_SIZE = 16*1024*1024;
+	private static final int BOOFER_SIZE = 16 * 1024 * 1024;
 
 	InputOutput io;
+	int maxDepth;
 
 	@Override
 	public void displayDirectoryContent(String directoryPath, int maxDepth, InputOutput io) {
-		if (maxDepth <= 0) {
-			maxDepth = Integer.MAX_VALUE;
-		}
 		this.io = io;
+		this.maxDepth = maxDepth;
 		File currentDirrectory = new File(directoryPath);
-		if (!currentDirrectory.exists()) {
-			io.writeObjectLine("Current dirrectory did't exists");
-			return;
-		}
-		if (!currentDirrectory.isDirectory()) {
-			io.writeObjectLine("This is no directory");
-			return;
-		}
-
-		printDir(currentDirrectory, 1, maxDepth);
+		printDir(currentDirrectory, 1);
 
 	}
 
-	private void printDir(File currentDirrectory, int level, int maxDepth) {
-		int spases = level ;
+	private void printDir(File currentDirrectory, int level) {
 		boolean flIsDir = currentDirrectory.isDirectory();
 		if (!flIsDir) {
-			for (int i = 0; i < spases; i++) {
-				io.writeObject(" ");
-			}
+			io.writeObject(" ".repeat(level));
 		}
 		io.writeObjectLine(String.format(" %s, %s", currentDirrectory.getName(), flIsDir ? " dir" : "file"));
 		if (flIsDir && level <= maxDepth) {
 			io.writeObjectLine("___________________");
 			for (File f : currentDirrectory.listFiles()) {
-				printDir(f, level+1, maxDepth);
+				printDir(f, level + 1);
 			}
 		}
 	}
 
 	@Override
-	public long copyFiles(String pathFileSrc, String pathFileDestination, boolean flOwerride) throws IOException {
-		File target = new File(pathFileSrc);
-		if(!target.exists()) {
-			throw new IOException("current file did't exists");
-		}
-		InputStream is = new FileInputStream(target);
-		File destFile = new File(pathFileDestination);
-		if(destFile.exists() ) {
-			destFile.setWritable(flOwerride);
-		} 
-		if(!flOwerride) {
-			throw new IOException("current file can't be overritten");
-		}
+	public long copyFiles(String pathFileSrc, String pathFileDest, boolean flOwerride) throws IOException {
+		InputStream is = new FileInputStream(pathFileSrc);
 		Instant start = Instant.now();
-		OutputStream os = new FileOutputStream(destFile);
+		OutputStream os = new FileOutputStream(pathFileDest);
 		byte buffer[] = new byte[BOOFER_SIZE];
-		int nByts= 0;
+		int nByts = 0;
 		long resByts = 0;
-		while((nByts = is.read(buffer))>0) {
+		while ((nByts = is.read(buffer)) > 0) {
 			os.write(buffer, 0, nByts);
 			resByts += nByts;
 		}
 		is.close();
 		os.close();
-		
-		return resByts/ChronoUnit.MILLIS.between(start, Instant.now());
+		return resByts / ChronoUnit.MILLIS.between(start, Instant.now());
 	}
 
 }

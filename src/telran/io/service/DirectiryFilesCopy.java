@@ -31,7 +31,8 @@ void displayDirectoryContent(String directoryPath,int maxDepth, InputOutput io);
  * @param flOwerride if true an existing destination will be overwritten, otherwise operation will be denied
  * @return byte rate - numbers of bytes on one millisecond
  * @throws IOException 
+
  */
-long copyFiles(String pathFileSrc, String pathPathDestination, boolean flOwerride) throws IOException;
+long copyFiles(String pathFileSrc, String pathPathDestination, boolean flOwerride) throws IOException ;
 
 }
